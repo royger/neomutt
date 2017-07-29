@@ -224,7 +224,6 @@ static int rfc1524_mailcap_parse(struct Body *a, char *filename, char *type,
 
       /* parse the optional fields */
       found = true;
-      bool copiousoutput = false;
       bool composecommand = false;
       bool editcommand = false;
       bool printcommand = false;
@@ -242,7 +241,6 @@ static int rfc1524_mailcap_parse(struct Body *a, char *filename, char *type,
         }
         else if (mutt_str_strcasecmp(field, "copiousoutput") == 0)
         {
-          copiousoutput = true;
           if (entry)
             entry->copiousoutput = true;
         }
@@ -313,7 +311,7 @@ static int rfc1524_mailcap_parse(struct Body *a, char *filename, char *type,
 
       if (opt == MUTT_AUTOVIEW)
       {
-        if (!copiousoutput)
+        if (a->type != TYPETEXT || a->disposition != DISPINLINE)
           found = false;
       }
       else if (opt == MUTT_COMPOSE)
