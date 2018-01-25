@@ -318,6 +318,14 @@ distclean: clean
 	$(RM) $(DEPFILES) conststrings.c config.h config.log doc/neomutt.1 \
 		Makefile po/Makefile contrib/Makefile doc/Makefile \
 		test/Makefile autosetup/jimsh0
+	$(RM) html mutt/*.inc doxygen-build.txt
+
+# Web Code docs (doxygen)
+.PHONY: html $(PWD)/mutt
+html:
+	$(SRCDIR)/.travis/gen-tables.sh $(SRCDIR)/mutt/*.c
+	doxygen $(SRCDIR)/doxygen/doxygen.conf
+	@grep warning doxygen-build.txt | grep -v Consider
 
 ##############################################################################
 # include generated dependency files
