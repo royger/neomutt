@@ -8172,8 +8172,6 @@ macro pager \cb |urlview\n
         replaced by a single new part with the multipart/alternative type. From
         this point on, the alternatives must be manipulated or deleted as a
         group.</para>
-        <para>Beware that such messages cannot be postponed. Once two
-        attachments are grouped as alternatives, they must be sent or lost.</para>
       </sect2>
 
       <sect2 id="compose-menu">

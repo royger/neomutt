@@ -1099,28 +1099,24 @@ int mutt_compose_menu(struct Header *msg, /* structure for new message */
           break;
         }
 
-        /* need to redo using mutt_gen_attach_list() */
-
         group = mutt_mem_calloc(1, sizeof(struct Body));
         group->type = TYPEMULTIPART;
-        group->subtype = "alternative";
+        group->subtype = strdup("alternative");
 
         alts = NULL;
-        for (i = 0, bptr = msg->content; bptr && bptr->next;)
+        /* group tagged message into a multipart/alternative */
+        for (i = 0, bptr = msg->content; bptr;)
         {
-          /* always look at bptr->next, not bptr itself */
-          if (bptr->next->tagged)
+          if (bptr->tagged)
           {
             /* untag */
-            bptr->next->tagged = 0;
+            bptr->tagged = 0;
 
             /* for first match, set group desc according to match */
 #define ALTS_TAG "Alternatives for \"%s\""
             if (!group->description)
             {
-              p = bptr->next->description;
-              if (!p)
-                p = bptr->next->filename;
+              p = bptr->description == NULL ? bptr->filename : bptr->description;
               if (p)
               {
                 group->description =
@@ -1129,24 +1125,23 @@ int mutt_compose_menu(struct Header *msg, /* structure for new message */
               }
             }
 
-            /* append bptr->next to the alts list,
+            /* append bptr to the alts list,
              * and remove from the msg->content list */
             if (alts == NULL)
             {
-              group->parts = alts = bptr->next;
-              bptr->next = bptr->next->next;
+              group->parts = alts = bptr;
+              bptr = bptr->next;
               alts->next = NULL;
             }
             else
             {
-              alts->next = bptr->next;
-              bptr->next = bptr->next->next;
+              alts->next = bptr;
+              bptr = bptr->next;
               alts = alts->next;
               alts->next = NULL;
             }
 
-            /* now delink the idx entry */
-            for (j = i + 1; j < actx->idxlen - 1; ++j)
+            for (j = i; j < actx->idxlen - 1; j++)
             {
               actx->idx[j] = actx->idx[j + 1];
             }
@@ -1159,19 +1154,14 @@ int mutt_compose_menu(struct Header *msg, /* structure for new message */
           }
         }
 
-        /* add group to attachment list */
-        for (bptr = msg->content; bptr->next; bptr = bptr->next)
-          ;
-        bptr->next = group;
         group->next = NULL;
+        mutt_generate_boundary(&group->parameter);
+
+        /* msg->content = NULL; */
 
         gptr = mutt_mem_calloc(1, sizeof(struct AttachPtr));
         gptr->content = group;
-        actx->idx[actx->idxlen] = gptr;
         update_idx(menu, actx, gptr);
-
-        /* add a boundary */
-        mutt_generate_boundary(&group->parameter);
 
         /* if no group desc yet, make one up */
         if (!group->description)
