@@ -4410,8 +4410,8 @@ msgstr ""
 "Scegliere la famiglia dell'algoritmo: 1: DES, 2: RC2, 3: AES o annullare(c)? "
 
 #: ncrypt/smime.c:2106
-msgid "drac"
-msgstr "drac"
+msgid "123c"
+msgstr "123c"
 
 #: ncrypt/smime.c:2109
 msgid "1: DES, 2: Triple-DES "
